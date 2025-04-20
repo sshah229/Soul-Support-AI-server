@@ -54,6 +54,8 @@ passport.use('jwt', jwtStrategy);
 //   app.use('/v1/auth', authLimiter);
 // }
 
+// app.use('/api/goals', require('./routes/v1/goal.route'));
+
 // v1 api routes
 app.use(routes);
 

@@ -19,12 +19,13 @@ async function AnalyzeEmotion(prompt) {
 
 "${prompt}"
 
-Provide the response STRICTLY in this JSON format:
+Respond STRICTLY as JSON:
 {
-  "sentiment_score": float between -1.0 (negative) and 1.0 (positive),
-  "emotion_category": one of ["Happy", "Sad", "Neutral", "Anxious", "Angry"],
-  "emotion_intensity": integer between 1 (low intensity) and 10 (high intensity)
-}`;
+  "sentiment_score": float -1.0→1.0,
+  "emotion_category": one of ["Happy","Sad","Neutral","Anxious","Angry"],
+  "emotion_intensity": integer 1→10
+}
+`;
 
   let responseText = "";
   let parsed;
@@ -68,7 +69,7 @@ ${running_message}
         summary: summaryText,
         timestamp: new Date().toISOString(),
         latest_emotion_category: parsed.emotion_category,
-		latest_emotion_intensity: parsed.emotion_intensity
+        latest_emotion_intensity: parsed.emotion_intensity,
       };
       await db.collection("journal").insertOne(journalEntry);
       console.log("Inserted into journal:", journalEntry);
@@ -76,8 +77,7 @@ ${running_message}
 
     return entry;
   } catch (err) {
-    console.error("Error in AnalyzeEmotion:", err);
-    console.error("Raw response was:", responseText);
+    console.error("AnalyzeEmotion error:", err, "raw:", responseText);
     return null;
   } finally {
     if (client) {
