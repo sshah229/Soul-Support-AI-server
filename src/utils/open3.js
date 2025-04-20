@@ -1,6 +1,7 @@
 // open3.js
 require("dotenv").config();
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+  const twilio = require('twilio');
 
 // 🔐 Ensure GOOGLE_API_KEY is set in your .env
 const genAI = new GoogleGenerativeAI("AIzaSyD02kJ3dqI2k0v9hLbEfH-l0igviqq-S04");
@@ -33,6 +34,17 @@ Respond with exactly one word: RISK or NO_RISK.
     // Map classification to numeric flag
     const isRisk = classification === "RISK" ? 1 : 0;
     console.log("🛑 Self-harm risk detected:", isRisk);
+	if (isRisk === 1) {
+    const accountSid = "ACb742010e2bc7d223a4d4dae884cf3c31";
+const authToken = "2411b442e3558601e1776e1cc6aa0f5e";
+const client = require("twilio")(accountSid, authToken);
+
+client.calls.create({
+  url: "http://demo.twilio.com/docs/voice.xml",
+  to: "+16025743772",
+  from: "+18885520964",
+})
+  }
     return isRisk;
   } catch (err) {
     console.error("Error during extreme-risk detection:", err);
