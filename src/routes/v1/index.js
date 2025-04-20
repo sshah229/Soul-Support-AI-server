@@ -10,6 +10,7 @@ const reportRoute = require("./report.route");
 const router = express.Router();
 const planRoute = require("./plan.route");
 const dietRoute = require("./diet.route");
+const goalRoute = require("./goal.route");
 
 const defaultRoutes = [
   {
