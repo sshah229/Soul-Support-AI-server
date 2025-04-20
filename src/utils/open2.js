@@ -1,5 +1,5 @@
 // open2.js
-
+const user = require("../models/user.model");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { MongoClient } = require('mongodb');
 require("dotenv").config();
@@ -39,12 +39,15 @@ Provide the response STRICTLY in this JSON format:
 
     // Parse JSON
     const parsed = JSON.parse(responseText);
-
+	console.log(user)
+	console.log(user.User)
     // Append timestamp
     const entry = {
       ...parsed,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+	  email: user.email
     };
+	console.log(entry);
 
     // Insert into MongoDB
     const client = await MongoClient.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true });
