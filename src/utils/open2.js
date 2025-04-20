@@ -3,7 +3,7 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { MongoClient } = require("mongodb");
 require("dotenv").config();
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+const genAI = new GoogleGenerativeAI("AIzaSyD02kJ3dqI2k0v9hLbEfH-l0igviqq-S04");
 const mongoUrl = process.env.MONGODB_URL;
 
 async function AnalyzeEmotion(prompt, email) {
@@ -24,13 +24,16 @@ Respond STRICTLY as JSON:
   let responseText = "";
   try {
     const result = await model.generateContent(enhanced);
-    responseText = result.response.text().replace(/```json|```/g, "").trim();
+    responseText = result.response
+      .text()
+      .replace(/```json|```/g, "")
+      .trim();
     const parsed = JSON.parse(responseText);
 
     const entry = {
       ...parsed,
       timestamp: new Date().toISOString(),
-      email, 
+      email,
     };
 
     const client = await MongoClient.connect(mongoUrl, {
