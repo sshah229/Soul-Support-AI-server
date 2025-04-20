@@ -1,66 +1,49 @@
-// open2.js
-const user = require("../models/user.model");
+// src/utils/open2.js
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const { MongoClient } = require('mongodb');
+const { MongoClient } = require("mongodb");
 require("dotenv").config();
 
-const genAI = new GoogleGenerativeAI("AIzaSyD02kJ3dqI2k0v9hLbEfH-l0igviqq-S04");
-const mongoUrl = process.env.MONGODB_URL;  // from .env
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+const mongoUrl = process.env.MONGODB_URL;
 
-/**
- * AnalyzeEmotion:
- *  - Sends user prompt to Gemini for sentiment & emotion analysis.
- *  - Cleans and parses JSON response.
- *  - Appends an ISO timestamp.
- *  - Inserts the result into MongoDB.
- *  - Logs and returns the structured result.
- */
-async function AnalyzeEmotion(prompt) {
+async function AnalyzeEmotion(prompt, email) {
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
-  const enhancedPrompt = `Analyze the following user entry for sentiment and emotion:
+  const enhanced = `
+Analyze the following user entry for sentiment & emotion:
 
 "${prompt}"
 
-Provide the response STRICTLY in this JSON format:
+Respond STRICTLY as JSON:
 {
-  "sentiment_score": float between -1.0 (negative) and 1.0 (positive),
-  "emotion_category": one of ["Happy", "Sad", "Neutral", "Anxious", "Angry"],
-  "emotion_intensity": integer between 1 (low intensity) and 10 (high intensity)
-}`;
+  "sentiment_score": float -1.0→1.0,
+  "emotion_category": one of ["Happy","Sad","Neutral","Anxious","Angry"],
+  "emotion_intensity": integer 1→10
+}
+`;
 
-  let responseText = '';
+  let responseText = "";
   try {
-    const result = await model.generateContent(enhancedPrompt);
-    responseText = result.response.text();
-
-    // Remove any markdown fences or extraneous formatting
-    responseText = responseText.replace(/```json|```/g, '').trim();
-
-    // Parse JSON
+    const result = await model.generateContent(enhanced);
+    responseText = result.response.text().replace(/```json|```/g, "").trim();
     const parsed = JSON.parse(responseText);
-	console.log(user)
-	console.log(user.User)
-    // Append timestamp
+
     const entry = {
       ...parsed,
       timestamp: new Date().toISOString(),
-	  email: user.email
+      email, 
     };
-	console.log(entry);
 
-    // Insert into MongoDB
-    const client = await MongoClient.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true });
-    const db = client.db();                   // default DB from URL
-    const collection = db.collection('emotion_logs');
-    await collection.insertOne(entry);
+    const client = await MongoClient.connect(mongoUrl, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    await client.db().collection("emotion_logs").insertOne(entry);
     client.close();
 
-    console.log("Inserted into MongoDB:", entry);
+    console.log("Inserted emotion log:", entry);
     return entry;
   } catch (err) {
-    console.error("Error in AnalyzeEmotion:", err);
-    console.error("Raw response was:", responseText);
+    console.error("AnalyzeEmotion error:", err, "raw:", responseText);
     return null;
   }
 }
