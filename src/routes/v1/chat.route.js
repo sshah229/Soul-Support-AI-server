@@ -1,11 +1,13 @@
 const express = require("express");
 const openai = require("../../utils/open.conf");
 const query = require("../../utils/open");
+const query2 = require("../../utils/open2");
 const router = express.Router();
 
 router.post("/chatbot", async (req, res) => {
   const message = req.body.message;
   console.log(message);
+  const data= await query2(message);
   const answer = await query(message);
   console.log(answer);
   return res.json({ answer });
