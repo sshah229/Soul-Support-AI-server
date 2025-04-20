@@ -5,6 +5,7 @@ const docRoute = require('../v1/doct.route')
 const talkRoute = require('./3d.route')
 const chatRoute = require('./chat.route')
 const emotions = require('./emotions')
+const journal = require('./journal')
 const reportRoute = require('./report.route')
 const router = express.Router();
 const planRoute = require('./plan.route')
@@ -46,6 +47,10 @@ const defaultRoutes = [
   { 
     path: '',
     route: emotions
+  },
+  { 
+    path: '',
+    route: journal
   }
 ];
 
