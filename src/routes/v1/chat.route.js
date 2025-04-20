@@ -2,11 +2,17 @@ const express = require("express");
 const openai = require("../../utils/open.conf");
 const query = require("../../utils/open");
 const query2 = require("../../utils/open2");
+const query3 = require("../../utils/open3");
 const router = express.Router();
 
 router.post("/chatbot", async (req, res) => {
   const message = req.body.message;
   console.log(message);
+  const self_harm = await query3(message);
+    if (self_harm === 1) {
+    console.log("Self-harm risk detected. Sending safe response.");
+    return res.json({ answer: "don't kill yourself" });
+  }
   const data= await query2(message);
   const answer = await query(message);
   console.log(answer);
