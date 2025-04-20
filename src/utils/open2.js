@@ -56,7 +56,7 @@ Provide the response STRICTLY in this JSON format:
     console.log("Inserted into emotion_logs:", entry);
 
     // 4) If intensity > 8, summarize entire history and journal it
-    if (parsed.emotion_intensity > 8) {
+    if (parsed.emotion_intensity > 7) {
       const summaryPrompt = `
 You are a thoughtful mental health companion. Summarize the following user conversation in 2-3 sentences, highlighting key feelings and offering gentle guidance:
 ${running_message}
@@ -68,6 +68,7 @@ ${running_message}
         summary: summaryText,
         timestamp: new Date().toISOString(),
         latest_emotion_category: parsed.emotion_category,
+		latest_emotion_intensity: parsed.emotion_intensity
       };
       await db.collection("journal").insertOne(journalEntry);
       console.log("Inserted into journal:", journalEntry);
