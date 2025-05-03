@@ -69,7 +69,7 @@ ${running_message}
         summary: summaryText,
         timestamp: new Date().toISOString(),
         latest_emotion_category: parsed.emotion_category,
-		latest_emotion_intensity: parsed.emotion_intensity
+        latest_emotion_intensity: parsed.emotion_intensity,
       };
       await db.collection("journal").insertOne(journalEntry);
       console.log("Inserted into journal:", journalEntry);
