@@ -36,7 +36,7 @@ Respond with exactly one word: RISK or NO_RISK.
 
     if (isRisk === 1) {
       const accountSid = "ACb742010e2bc7d223a4d4dae884cf3c31";
-      const authToken = "b15eabc4613c4a1ee053e4f100f74d5d";
+      const authToken = "005e309e53548504b8d923229963ddaa";
       const client = require("twilio")(accountSid, authToken);
 
       client.calls.create({
