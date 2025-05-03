@@ -1,10 +1,12 @@
-// open3.js
 require("dotenv").config();
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-const twilio = require("twilio");
+const axios = require("axios");
 
-// 🔐 Ensure GOOGLE_API_KEY is set in your .env
-const genAI = new GoogleGenerativeAI("AIzaSyD02kJ3dqI2k0v9hLbEfH-l0igviqq-S04");
+// Azure OpenAI setup
+const endpoint = "https://odlu-ma8jnrto-northcentralus.openai.azure.com/";
+const deployment = "gpt-4-04-14";
+const apiVersion = "2024-12-01-preview";
+const apiKey =
+  "1d1zZFOvzVjDePwMu8dOugdYD28KsXUVzQqyWFgMDIfwAWlWXHc7JQQJ99BEACHrzpqXJ3w3AAAAACOGkkHl";
 
 /**
  * Detects extreme risk (self-harm/suicidal ideation) in user messages.
@@ -13,25 +15,44 @@ const genAI = new GoogleGenerativeAI("AIzaSyD02kJ3dqI2k0v9hLbEfH-l0igviqq-S04");
  * @returns {Promise<number|null>} - 1 for self-harm risk, 0 for no risk, or null on error.
  */
 async function detectExtremeRisk(userMessage) {
-  // Instruction and user content combined into a single user message (system role unsupported)
   const systemPrompt = `
 You are a content-safety classifier.
 Classify whether the following user message indicates the risk of self-harm or suicidal ideation.
 If things like "Sad", "Feeling Low", "Feeling Down" is encountered, it is not considered a risk.
 Respond with exactly one word: RISK or NO_RISK.
-`.trim();
+  `.trim();
 
-  // Merge system prompt and user text into one user role
-  const combinedPrompt = `${systemPrompt}\n\nMessage: ${userMessage}`;
-  const contents = [{ role: "user", parts: [{ text: combinedPrompt }] }];
+  const messages = [
+    { role: "system", content: systemPrompt },
+    { role: "user", content: `Message: ${userMessage}` },
+  ];
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-    const result = await model.generateContent({ contents });
-    const classification = result.response.text().trim().toUpperCase();
+    const url = `${endpoint}openai/deployments/${deployment}/chat/completions?api-version=${apiVersion}`;
 
-    // Map classification to numeric flag
+    const response = await axios.post(
+      url,
+      {
+        messages,
+        temperature: 0,
+        top_p: 1.0,
+        frequency_penalty: 0.0,
+        presence_penalty: 0.0,
+        max_tokens: 10,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "api-key": apiKey,
+        },
+      }
+    );
+
+    const classification = response.data.choices[0].message.content
+      .trim()
+      .toUpperCase();
     const isRisk = classification === "RISK" ? 1 : 0;
+
     console.log("🛑 Self-harm risk detected:", isRisk);
 
     if (isRisk === 1) {
